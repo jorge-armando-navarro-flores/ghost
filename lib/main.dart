@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ghost/models/simple_dictionary.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,6 +33,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  TextEditingController controller = TextEditingController();
+  SimpleDictionary? simpleDictionary;
+
+  void loadDictionary() async{
+    String data = await rootBundle.loadString("text_files/words.txt");
+    List<String> wordList = data.split('\n');
+    // print(wordList);
+    simpleDictionary = SimpleDictionary(wordList);
+    setState(() {
+    });
+  }
+
+
+  @override
+  void initState(){
+
+    super.initState();
+    loadDictionary();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +61,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text(widget.title),
       ),
-      body:  Container(
+      body:  simpleDictionary == null? CircularProgressIndicator():
+      Container(
         padding: EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Word fragment',
-              style: TextStyle(
-                fontSize: 49.0
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none
+
               ),
+              style: TextStyle(
+                fontSize: 49.0,
+              ),
+              onEditingComplete: (){
+                controller.text += "A";
+                controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
+              },
             ),
             SizedBox(height: 5,),
             Text("Game status",),
@@ -58,14 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ActionButton(
                   text:"CHALLENGE",
                   onPressed: (){
-
+                    print(simpleDictionary!.getAnyWordStartingWith("hell"));
                   },
                 ),
                 SizedBox(width: 10,),
                 ActionButton(
                   text:"RESTART",
                   onPressed: (){
-
+                    controller.clear();
                   },
                 ),
               ],
