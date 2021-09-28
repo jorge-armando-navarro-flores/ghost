@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,22 +37,67 @@ class _MyHomePageState extends State<MyHomePage> {
 
   TextEditingController controller = TextEditingController();
   SimpleDictionary? simpleDictionary;
+  String gameStatus = "";
+  bool userTurn = true;
 
-  void loadDictionary() async{
+
+  void onStart() async{
     String data = await rootBundle.loadString("text_files/words.txt");
     List<String> wordList = data.split('\n');
     // print(wordList);
     simpleDictionary = SimpleDictionary(wordList);
     setState(() {
+      gameStatus = userTurn? "User turn": "Computer turn";
     });
+  }
+
+  void computerTurn(String fragment){
+    setState(() {
+      gameStatus = "Computer turn";
+      userTurn = false;
+    });
+
+    if(fragment.length >=4 && simpleDictionary!.isWord(fragment)){
+      setState(() {
+        gameStatus = "Computer challenge and wins because user wrote a word";
+      });
+      return;
+    }
+    
+
+
+      Future.delayed(const Duration(milliseconds: 2000), ()
+    {
+      String computerWord = simpleDictionary!.getAnyWordStartingWith(fragment);
+      if(computerWord != "not found"){
+        print(fragment.length);
+        print(computerWord.length);
+        final yourText = fragment.length < computerWord.length-1? computerWord[fragment.length]: computerWord[computerWord.length-1];
+      print(computerWord);
+
+      setState(() {
+        userTurn = true;
+        gameStatus = "User turn";
+        controller.value = controller.value.copyWith(
+          text: controller.text + yourText,
+          selection: TextSelection.collapsed(
+            offset: controller.value.selection.baseOffset + yourText.length,),
+        );
+      });
+    }
+      });
+
+
+
+
+
   }
 
 
   @override
   void initState(){
-
     super.initState();
-    loadDictionary();
+    onStart();
   }
 
   @override
@@ -69,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             TextField(
               controller: controller,
+              readOnly: !userTurn,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -78,13 +126,13 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(
                 fontSize: 49.0,
               ),
-              onEditingComplete: (){
-                controller.text += "A";
-                controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
+
+              onChanged: (value){
+                computerTurn(value);
               },
             ),
             SizedBox(height: 5,),
-            Text("Game status",),
+            Text(gameStatus),
             SizedBox(height: 10,),
             Row(
               children: [
