@@ -19,7 +19,7 @@ class SimpleDictionary{
       middle = (left + right) ~/ 2;
       preflen = prefix.length;
       if(preflen >= words[middle].length){
-        preflen -= 1;
+        preflen = words[middle].length - 1;
       }
       if(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
         return words[middle];

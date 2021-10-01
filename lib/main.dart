@@ -38,37 +38,53 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController controller = TextEditingController();
   SimpleDictionary? simpleDictionary;
   String gameStatus = "";
-  bool userTurn = true;
+  bool userTurn = Random().nextBool();
 
-
-  void onStart() async{
+  void loadDictionary() async{
     String data = await rootBundle.loadString("text_files/words.txt");
     List<String> wordList = data.split('\n');
     // print(wordList);
-    simpleDictionary = SimpleDictionary(wordList);
     setState(() {
-      gameStatus = userTurn? "User turn": "Computer turn";
+      simpleDictionary = SimpleDictionary(wordList);
+    });
+
+  }
+
+  void onStart(){
+    setState(() {
+        if(userTurn){
+          gameStatus = "User Turn";
+        }else{
+          gameStatus = "Computer Turn";
+          computerTurn("");
+        }
+      // gameStatus = userTurn? "User turn": "Computer turn";
     });
   }
 
   void computerTurn(String fragment){
-    setState(() {
-      gameStatus = "Computer turn";
-      userTurn = false;
-    });
+
 
     if(fragment.length >=4 && simpleDictionary!.isWord(fragment)){
       setState(() {
-        gameStatus = "Computer challenge and wins because user wrote a word";
+        if(userTurn){
+          gameStatus = "User challenge and wins because computer wrote a word";
+        }else{
+          gameStatus = "Computer challenge and wins because user wrote a word";
+        }
+      });
+      return;
+    }else if(userTurn){
+      setState(() {
+          gameStatus = "computer wins because the fragment was not a word";
       });
       return;
     }
-    
-
 
       Future.delayed(const Duration(milliseconds: 2000), ()
     {
       String computerWord = simpleDictionary!.getAnyWordStartingWith(fragment);
+      print(computerWord);
       if(computerWord != "not found"){
         print(fragment.length);
         print(computerWord.length);
@@ -84,7 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
             offset: controller.value.selection.baseOffset + yourText.length,),
         );
       });
-    }
+    }else{
+        setState(() {
+          gameStatus = "computer challenge and wins because there is no word that begins with the fragment";
+        });
+
+      }
       });
 
 
@@ -97,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
+    loadDictionary();
     onStart();
   }
 
@@ -116,7 +138,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             TextField(
               controller: controller,
-              readOnly: !userTurn,
+              // readOnly: !userTurn,
+              autofocus: true,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -128,6 +151,10 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
 
               onChanged: (value){
+                setState(() {
+                  gameStatus = "Computer turn";
+                  userTurn = false;
+                });
                 computerTurn(value);
               },
             ),
@@ -139,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ActionButton(
                   text:"CHALLENGE",
                   onPressed: (){
-                    print(simpleDictionary!.getAnyWordStartingWith("hell"));
+                    computerTurn(controller.text);
                   },
                 ),
                 SizedBox(width: 10,),
@@ -147,6 +174,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   text:"RESTART",
                   onPressed: (){
                     controller.clear();
+                    userTurn = Random().nextBool();
+                    onStart();
                   },
                 ),
               ],
