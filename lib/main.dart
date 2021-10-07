@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<String> wordList = data.split('\n');
     // print(wordList);
     setState(() {
-      simpleDictionary = SimpleDictionary(wordList);
+      simpleDictionary = SimpleDictionary(wordList, userTurn);
     });
 
   }
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       Future.delayed(const Duration(milliseconds: 2000), ()
     {
-      String computerWord = simpleDictionary!.getAnyWordStartingWith(fragment);
+      String computerWord = simpleDictionary!.getGoodWordStartingWith(fragment);
       print(computerWord);
       if(computerWord != "not found"){
         print(fragment.length);
@@ -175,6 +175,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: (){
                     controller.clear();
                     userTurn = Random().nextBool();
+                    simpleDictionary!.setStart(userTurn);
+                    print(simpleDictionary!.userStarted);
                     onStart();
                   },
                 ),
