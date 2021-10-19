@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ghost/models/simple_dictionary.dart';
+import 'models/fast_dictionary.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key? key, required this.title}) : super(key: key);
 
-
   final String title;
 
   @override
@@ -34,89 +33,81 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   TextEditingController controller = TextEditingController();
-  SimpleDictionary? simpleDictionary;
+  FastDictionary? simpleDictionary;
   String gameStatus = "";
   bool userTurn = Random().nextBool();
 
-  void loadDictionary() async{
+  void loadDictionary() async {
     String data = await rootBundle.loadString("text_files/words.txt");
     List<String> wordList = data.split('\n');
     // print(wordList);
     setState(() {
-      simpleDictionary = SimpleDictionary(wordList, userTurn);
+      simpleDictionary = FastDictionary(wordList, userTurn);
     });
-
   }
 
-  void onStart(){
+  void onStart() {
     setState(() {
-        if(userTurn){
-          gameStatus = "User Turn";
-        }else{
-          gameStatus = "Computer Turn";
-          computerTurn("");
-        }
+      if (userTurn) {
+        gameStatus = "User Turn";
+      } else {
+        gameStatus = "Computer Turn";
+        computerTurn("");
+      }
       // gameStatus = userTurn? "User turn": "Computer turn";
     });
   }
 
-  void computerTurn(String fragment){
-
-
-    if(fragment.length >=4 && simpleDictionary!.isWord(fragment)){
+  void computerTurn(String fragment) {
+    if (fragment.length >= 4 && simpleDictionary!.isWord(fragment)) {
       setState(() {
-        if(userTurn){
+        if (userTurn) {
           gameStatus = "User challenge and wins because computer wrote a word";
-        }else{
+        } else {
           gameStatus = "Computer challenge and wins because user wrote a word";
         }
       });
       return;
-    }else if(userTurn){
+    } else if (userTurn) {
       setState(() {
-          gameStatus = "computer wins because the fragment was not a word";
+        gameStatus = "computer wins because the fragment was not a word";
       });
       return;
     }
 
-      Future.delayed(const Duration(milliseconds: 2000), ()
-    {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       String computerWord = simpleDictionary!.getGoodWordStartingWith(fragment);
       print(computerWord);
-      if(computerWord != "not found"){
+      if (computerWord != "not found") {
         print(fragment.length);
         print(computerWord.length);
-        final yourText = fragment.length < computerWord.length-1? computerWord[fragment.length]: computerWord[computerWord.length-1];
-      print(computerWord);
+        final newLetter = fragment.length < computerWord.length - 1
+            ? computerWord[fragment.length]
+            : computerWord[computerWord.length - 1];
+        print(computerWord);
 
-      setState(() {
-        userTurn = true;
-        gameStatus = "User turn";
-        controller.value = controller.value.copyWith(
-          text: controller.text + yourText,
-          selection: TextSelection.collapsed(
-            offset: controller.value.selection.baseOffset + yourText.length,),
-        );
-      });
-    }else{
         setState(() {
-          gameStatus = "computer challenge and wins because there is no word that begins with the fragment";
+          userTurn = true;
+          gameStatus = "User turn";
+          controller.value = controller.value.copyWith(
+            text: controller.text + newLetter,
+            selection: TextSelection.collapsed(
+              offset: controller.value.selection.baseOffset + newLetter.length,
+            ),
+          );
         });
-
+      } else {
+        setState(() {
+          gameStatus =
+              "computer challenge and wins because there is no word that begins with the fragment";
+        });
       }
-      });
-
-
-
-
-
+    });
   }
 
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
     loadDictionary();
     onStart();
@@ -124,68 +115,70 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar: AppBar(
-
-        title: Text(widget.title),
-      ),
-      body:  simpleDictionary == null? CircularProgressIndicator():
-      Container(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: controller,
-              // readOnly: !userTurn,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none
-
-              ),
-              style: TextStyle(
-                fontSize: 49.0,
-              ),
-
-              onChanged: (value){
-                setState(() {
-                  gameStatus = "Computer turn";
-                  userTurn = false;
-                });
-                computerTurn(value);
-              },
-            ),
-            SizedBox(height: 5,),
-            Text(gameStatus),
-            SizedBox(height: 10,),
-            Row(
-              children: [
-                ActionButton(
-                  text:"CHALLENGE",
-                  onPressed: (){
-                    computerTurn(controller.text);
-                  },
-                ),
-                SizedBox(width: 10,),
-                ActionButton(
-                  text:"RESTART",
-                  onPressed: (){
-                    controller.clear();
-                    userTurn = Random().nextBool();
-                    simpleDictionary!.setStart(userTurn);
-                    print(simpleDictionary!.userStarted);
-                    onStart();
-                  },
-                ),
-              ],
-            )
-          ],
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      )
-    );
+        body: simpleDictionary == null
+            ? CircularProgressIndicator()
+            : Container(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      // readOnly: !userTurn,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none),
+                      style: TextStyle(
+                        fontSize: 49.0,
+                      ),
+
+                      onChanged: (value) {
+                        setState(() {
+                          gameStatus = "Computer turn";
+                          userTurn = false;
+                        });
+                        computerTurn(value);
+                      },
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(gameStatus),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        ActionButton(
+                          text: "CHALLENGE",
+                          onPressed: () {
+                            computerTurn(controller.text);
+                          },
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        ActionButton(
+                          text: "RESTART",
+                          onPressed: () {
+                            controller.clear();
+                            userTurn = Random().nextBool();
+                            simpleDictionary!.setStart(userTurn);
+                            print(simpleDictionary!.userStarted);
+                            onStart();
+                          },
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ));
   }
 }
 
@@ -199,12 +192,11 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        onPressed: onPressed,
-        child: Text(text!,
-          style: TextStyle(
-            color: Colors.black
-          ),
-        ),
+      onPressed: onPressed,
+      child: Text(
+        text!,
+        style: TextStyle(color: Colors.black),
+      ),
       style: TextButton.styleFrom(
         backgroundColor: Color(0xFFD6D7D7),
       ),

@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:flutter/services.dart';
 
-class SimpleDictionary{
+
+class SimpleDictionary {
   List<String> words;
   bool userStarted;
 
@@ -12,72 +12,81 @@ class SimpleDictionary{
     return words.contains(word);
   }
 
-  String getAnyWordStartingWith(String prefix){
+  String getAnyWordStartingWith(String prefix) {
     int left = 0;
     int right = words.length - 1;
     int middle = 0;
-    int preflen = 0;
-while(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
-
-        }
-    while(left <= right){
+    int prefixLength = 0;
+    while (left <= right) {
       middle = (left + right) ~/ 2;
-      preflen = prefix.length;
-      if(preflen >= words[middle].length){
-        preflen = words[middle].length - 1;
+      prefixLength = prefix.length;
+      if (prefixLength >= words[middle].length) {
+        prefixLength = words[middle].length - 1;
       }
-      if(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
+      if (words[middle]
+              .toLowerCase()
+              .substring(0, prefixLength)
+              .compareTo(prefix.toLowerCase()) ==
+          0) {
         return words[middle];
-      } else if(words[middle].toLowerCase().compareTo(prefix.toLowerCase()) == -1){
+      } else if (words[middle].toLowerCase().compareTo(prefix.toLowerCase()) ==
+          -1) {
         left = middle + 1;
-      }
-      else{
+      } else {
         right = middle - 1;
       }
     }
 
     return "not found";
-
   }
 
   String getGoodWordStartingWith(String prefix) {
-    if(prefix.length == 0){
+    if (prefix.length == 0) {
       return words[Random().nextInt(words.length)][0];
     }
     int left = 0;
     int right = words.length - 1;
     int middle = 0;
-    int preflen = 0;
-    List<String>? possibleWords;
+    int prefixLength = 0;
 
-    while(left <= right){
-
-
+    while (left <= right) {
       middle = (left + right) ~/ 2;
-      preflen = prefix.length;
-      if(preflen > words[middle].length){
-        preflen = words[middle].length - 1;
+      prefixLength = prefix.length;
+      if (prefixLength > words[middle].length) {
+        prefixLength = words[middle].length - 1;
       }
-      if(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
+      if (words[middle]
+              .toLowerCase()
+              .substring(0, prefixLength)
+              .compareTo(prefix.toLowerCase()) ==
+          0) {
         int start = middle;
         int end = middle;
-        while(words[start].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
+        while (words[start]
+                .toLowerCase()
+                .substring(0, prefixLength)
+                .compareTo(prefix.toLowerCase()) ==
+            0) {
           start--;
-          if(preflen > words[start].length){
+          if (prefixLength > words[start].length) {
             start++;
             break;
           }
         }
-        while(words[end].toLowerCase().substring(0, preflen).compareTo(prefix.toLowerCase()) == 0){
+        while (words[end]
+                .toLowerCase()
+                .substring(0, prefixLength)
+                .compareTo(prefix.toLowerCase()) ==
+            0) {
           end++;
-          if(preflen > words[end].length){
+          if (prefixLength > words[end].length) {
             break;
           }
         }
 
         List<String> possibleWords = [];
-        for(String word in words.sublist(start+1, end)) {
-          if (word.length > preflen) {
+        for (String word in words.sublist(start + 1, end)) {
+          if (word.length > prefixLength) {
             if (userStarted) {
               if (word.length % 2 == 1) {
                 possibleWords.add(word);
@@ -90,10 +99,10 @@ while(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLower
 
         print(possibleWords);
         return possibleWords[Random().nextInt(possibleWords.length)];
-      } else if(words[middle].toLowerCase().compareTo(prefix.toLowerCase()) == -1){
+      } else if (words[middle].toLowerCase().compareTo(prefix.toLowerCase()) ==
+          -1) {
         left = middle + 1;
-      }
-      else{
+      } else {
         right = middle - 1;
       }
     }
@@ -101,9 +110,7 @@ while(words[middle].toLowerCase().substring(0, preflen).compareTo(prefix.toLower
     return "not found";
   }
 
-  void setStart(bool started){
+  void setStart(bool started) {
     userStarted = started;
   }
-
-
 }
