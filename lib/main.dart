@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController controller = TextEditingController();
-  FastDictionary? simpleDictionary;
+  FastDictionary? fastDictionary;
   String gameStatus = "";
   bool userTurn = Random().nextBool();
 
@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<String> wordList = data.split('\n');
     // print(wordList);
     setState(() {
-      simpleDictionary = FastDictionary(wordList, userTurn);
+      fastDictionary = FastDictionary(wordList, userTurn);
     });
   }
 
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void computerTurn(String fragment) {
-    if (fragment.length >= 4 && simpleDictionary!.isWord(fragment)) {
+    if (fragment.length >= 4 && fastDictionary!.isWord(fragment)) {
       setState(() {
         if (userTurn) {
           gameStatus = "User challenge and wins because computer wrote a word";
@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     Future.delayed(const Duration(milliseconds: 2000), () {
-      String computerWord = simpleDictionary!.getGoodWordStartingWith(fragment);
+      String computerWord = fastDictionary!.getGoodWordStartingWith(fragment);
       print(computerWord);
       if (computerWord != "not found") {
         print(fragment.length);
@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: simpleDictionary == null
+        body: fastDictionary == null
             ? CircularProgressIndicator()
             : Container(
                 padding: EdgeInsets.all(10.0),
@@ -169,8 +169,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: () {
                             controller.clear();
                             userTurn = Random().nextBool();
-                            simpleDictionary!.setStart(userTurn);
-                            print(simpleDictionary!.userStarted);
+                            fastDictionary!.setStart(userTurn);
+                            print(fastDictionary!.userStarted);
                             onStart();
                           },
                         ),
